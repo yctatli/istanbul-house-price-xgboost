@@ -1,0 +1,83 @@
+Girdi: data/raw/istanbul_apartment_prices_2026.csv
+Ham veri: 24,767 satır, 30 sütun
+
+1.1 Biçim düzeltme
+  - Metin sütunları kırpıldı, sayısal ve tarih sütunları dönüştürüldü
+  - 'Not Specified' benzeri 180 değer eksik yapıldı
+
+1.2 Zorunlu alanlar (fiyat, m², ilçe olmadan ilan kullanılamaz)
+  - Fiyat eksik veya sıfır                                        0 satır çıkarıldı
+  - Net ve brüt m² ikisi de eksik                                 0 satır çıkarıldı
+  - İlçe eksik                                                    0 satır çıkarıldı
+
+1.3 Tekrar eden ilanlar
+  - Aynı listing_id tekrarı                                       0 satır çıkarıldı
+  - Aynı ev farklı ilan no ile tekrar girilmiş                  555 satır çıkarıldı
+
+1.4 Metrekare düzeltmeleri
+  - Medyan net/brüt oranı: 0.87. Eksik net m²: 0, eksik brüt m²: 0 dolduruldu
+  - Net > brüt olan 5 satırda değerler yer değiştirildi
+  - Net m² 20'den küçük (hatalı giriş)                           12 satır çıkarıldı
+  - Net m² 1000'den büyük (daire için gerçekçi değil)             0 satır çıkarıldı
+  - Net/brüt > 0.95 olan 863 satır 'supheli_m2' ile işaretlendi (silinmedi)
+
+1.5 Kat bilgisi
+  - floor_category değerleri:
+floor_category
+<NA>                 16969
+Garden Floor          1806
+Raised Ground         1718
+Entrance Floor         992
+Mid Floor              928
+Top Floor              432
+Sub-level 1            286
+Penthouse              250
+21 and Above           187
+Ground Floor           175
+Basement               124
+Semi-Basement          106
+Sub-level 2            103
+Terrace Floor           40
+Villa Floor             33
+Sub-level 3             29
+Basement & Ground       22
+  - Kat eksikti, kat türünden kurtarıldı: üst kat 682, giriş 0, bodrum 0
+  - Kat > toplam kat olan 71 satırda kat eksik yapıldı
+  - Toplam kat 0 veya 80'den fazla olan 3 satırda eksik yapıldı
+
+1.5b Gizli tekrarlar (aynı ofis, aynı ev, eksik alanlarla tekrar girilmiş)
+  - Gizli tekrar (aynı ofis/ev, çelişmeyen bilgi)                56 satır çıkarıldı
+
+1.6 Diğer mantık kontrolleri
+  - building_age: [0, 150] dışındaki 4 değer eksik yapıldı
+  - bathroom_count: [0, 10] dışındaki 9 değer eksik yapıldı
+  - rooms: [0, 15] dışındaki 5 değer eksik yapıldı
+  - maintenance_fee: [0, 200000] dışındaki 6 değer eksik yapıldı
+  - 'New' ama 5 yaşından büyük 251 satır 'durum_celiskisi' ile işaretlendi (silinmedi)
+
+1.7 Aykırı fiyatlar (ilçe bazında m² fiyatına göre)
+  - m² fiyatı ilçesine göre aşırı uç (3×IQR)                     25 satır çıkarıldı
+
+1.8 Son düzenleme
+  - total_rooms çıkarıldı (rooms + halls toplamı)
+  - price_per_sqm yeniden hesaplandı. UYARI: sadece analiz içindir, modele VERİLMEYECEK (hedef sızıntısı)
+
+============================================================
+Başlangıç: 24,767 satır  ->  Temiz: 24,119 satır (%97.4 korundu)
+
+Temiz veride kalan eksik değer oranları (%):
+complex_name          84.8
+floor_category        70.1
+maintenance_fee       63.4
+building_type         58.7
+building_condition    55.7
+fuel_type             55.7
+last_updated          47.9
+orientation           21.6
+exchange               6.4
+floor                  5.2
+furnished              4.3
+usage_status           2.9
+bathroom_count         1.0
+heating_type           0.3
+credit_eligible        0.1

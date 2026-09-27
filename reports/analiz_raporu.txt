@@ -1,0 +1,316 @@
+
+===========================================================================
+2.1 GENEL BAKIŞ
+===========================================================================
+İlan sayısı      : 24,119
+İlçe sayısı      : 38
+Mahalle sayısı   : 581
+Emlak ofisi sayısı: 2,395
+5'ten az ilanı olan mahalle: 114 / 740  (bu mahallelerdeki ilanlar: 233)
+
+===========================================================================
+2.2 HEDEF DEĞİŞKEN: FİYAT
+===========================================================================
+count         24,119
+mean      10,879,184
+std       15,197,592
+min          550,000
+1%         1,650,000
+5%         2,500,000
+25%        4,500,000
+50%        6,750,000
+75%       11,500,000
+95%       32,000,000
+99%       75,000,000
+max      460,000,000
+
+Çarpıklık (skewness) ham fiyat: 8.44   log fiyat: 0.73
+  (0'a yakın = simetrik. Log dönüşümü dağılımı ne kadar düzeltiyor, buradan görülür)
+
+===========================================================================
+2.3 SAYISAL ALANLARIN FİYATLA İLİŞKİSİ (Spearman korelasyonu)
+===========================================================================
+Spearman, sıralamaya dayalıdır: doğrusal olmayan ama tek yönlü ilişkileri de yakalar.
+'fiyat' sütunu: toplam fiyatla ilişki. 'göreli_m2' sütunu: ilçesine göre m² fiyatıyla ilişki.
+
+                 fiyat  göreli_m2  eksik_%
+gross_sqm        0.566      0.017    0.000
+bathroom_count   0.525      0.174    0.987
+rooms            0.523     -0.021    0.021
+maintenance_fee  0.513      0.442   63.431
+net_sqm          0.486     -0.072    0.000
+floor            0.314      0.170    5.174
+is_in_complex    0.236      0.340    0.000
+halls            0.175     -0.105    0.000
+building_age    -0.149     -0.388    0.017
+total_floors     0.136      0.202    0.017
+
+Birbiriyle güçlü ilişkili alan çiftleri (|r| > 0.7):
+  net_sqm          ~ gross_sqm        r = 0.96
+  net_sqm          ~ rooms            r = 0.85
+  gross_sqm        ~ rooms            r = 0.84
+
+===========================================================================
+2.4 KONUM: İLÇELERE GÖRE
+===========================================================================
+               ilan  medyan_fiyat_M  medyan_m2_bin  medyan_net_m2
+district                                                         
+Kadıköy        1055            19.6          210.8           95.0
+Beşiktaş        884            21.6          200.0          105.5
+Sarıyer         593            19.8          180.0          120.0
+Bakırköy        651            24.0          146.6          160.0
+Adalar          251            12.7          118.2          105.0
+Beykoz           97            14.9          117.5          120.0
+Üsküdar        1103            11.2          114.1           97.0
+Maltepe        1118             8.6          108.4           85.0
+Beyoğlu         182             8.8          101.7           85.0
+Zeytinburnu     343             8.0           95.6           90.0
+Kartal          607             7.8           95.5           90.0
+Ataşehir        452             8.4           94.5           90.0
+Ümraniye        738             7.0           83.2           85.0
+Şişli          1104             7.6           82.0           90.0
+Pendik          755             6.9           80.8           90.0
+Tuzla           378             7.2           77.2           96.0
+Eyüpsultan      630             7.2           73.3           90.0
+Başakşehir      798             6.7           72.8          107.5
+Bahçelievler   1125             6.6           70.4           97.0
+Çekmeköy        616             6.8           70.0           91.0
+Kağıthane      1027             5.9           68.4           80.0
+Çatalca           7             5.8           60.8           85.0
+Güngören        189             6.1           60.0           95.0
+Sancaktepe      751             5.9           59.4          100.0
+Sultanbeyli     620             5.6           58.1          100.0
+Küçükçekmece   1128             5.5           57.5           90.0
+Bayrampaşa      187             5.8           57.0           95.0
+Bağcılar        446             5.5           56.5           90.0
+Büyükçekmece    472             6.5           56.2          120.0
+Gaziosmanpaşa   549             5.6           53.2           90.0
+Fatih           723             4.0           51.8           78.0
+Avcılar         785             5.0           50.9          100.0
+Arnavutköy      388             5.0           47.9           90.0
+Silivri         206             4.2           46.7           90.0
+Esenler         505             3.8           46.0           85.0
+Beylikdüzü     1151             5.4           44.8          110.0
+Sultangazi      359             4.6           43.3           95.0
+Esenyurt       1146             3.0           32.5           95.0
+
+En pahalı / en ucuz ilçe m² fiyatı oranı: 6.5 kat
+
+Sadece ilçe bilinirse log fiyattaki değişkenliğin %44'i açıklanır.
+Sadece ilçe bilinirse log m² fiyatındaki değişkenliğin %51'i açıklanır.
+
+===========================================================================
+2.5 KATEGORİK ALANLAR: HAM FARK vs İLÇE İÇİ FARK
+===========================================================================
+ham_etki   : kategorinin medyan m² fiyatı / tüm verinin medyanı
+ilçe_içi   : kategorideki evlerin göreli m² fiyatının medyanı (ilçe etkisi ayıklanmış)
+İkisi çok farklıysa, ham fark büyük ölçüde konumdan kaynaklanıyordur.
+
+--- building_condition ---
+                     ilan  ham_etki  ilce_ici
+building_condition                           
+Under Construction    163      1.72      1.43
+New                  3340      1.20      1.15
+(eksik)             13429      0.98      1.01
+Second-hand          7187      0.95      0.90
+
+--- deed_status ---
+                        ilan  ham_etki  ilce_ici
+deed_status                                     
+No Title Deed            702      1.32      1.29
+Usufruct Right            49      2.82      1.15
+Foreign Owner            955      0.95      1.11
+Condominium Title      15274      1.08      1.04
+Construction Easement   5499      0.93      0.96
+Freehold Title            62      1.01      0.96
+Cooperative Share         62      1.26      0.80
+Shared Title             643      0.45      0.55
+Land Title               867      0.53      0.54
+
+--- credit_eligible ---
+                  ilan  ham_etki  ilce_ici
+credit_eligible                           
+(eksik)             34      1.01      1.07
+Eligible         21021      1.03      1.02
+Not Eligible      3064      0.71      0.73
+
+--- is_in_complex ---
+                ilan  ham_etki  ilce_ici
+is_in_complex                           
+1               5424      1.33      1.31
+0              18695      0.91      0.94
+
+--- usage_status ---
+                  ilan  ham_etki  ilce_ici
+usage_status                              
+Vacant           13588      1.11      1.07
+(eksik)            704      0.98      0.97
+Owner-occupied    4823      0.88      0.91
+Tenant-occupied   5004      0.92      0.89
+
+--- furnished ---
+              ilan  ham_etki  ilce_ici
+furnished                             
+Furnished     1088      1.10      1.04
+(eksik)       1044      1.15      1.00
+Unfurnished  21987      0.99      1.00
+
+--- heating_type ---
+                     ilan  ham_etki  ilce_ici
+heating_type                                 
+Central (Metered)    3223      1.56      1.40
+Underfloor Heating   1378      1.54      1.35
+Central              1019      1.63      1.15
+Air Conditioning       78      1.39      1.12
+Floor Radiator         73      0.97      0.98
+(eksik)                67      0.94      0.97
+Combi Boiler        17986      0.87      0.93
+No Heating             76      0.69      0.70
+Gas Stove             129      0.55      0.66
+Stove                  50      0.43      0.55
+
+--- fuel_type ---
+              ilan  ham_etki  ilce_ici
+fuel_type                             
+(eksik)      13446      0.99      1.02
+Natural Gas  10494      1.01      0.98
+Electricity    169      1.80      0.87
+
+--- floor_category ---
+                 ilan  ham_etki  ilce_ici
+floor_category                           
+21 and Above      187      2.00      1.38
+Villa Floor        32      1.44      1.22
+(eksik)         16910      1.07      1.05
+Mid Floor         919      0.90      1.01
+Raised Ground    1715      0.82      0.90
+Ground Floor      175      0.95      0.90
+Entrance Floor    989      0.90      0.89
+Top Floor         431      0.88      0.89
+Terrace Floor      40      0.82      0.85
+Garden Floor     1803      0.85      0.85
+Penthouse         250      0.71      0.85
+Sub-level 1       284      0.78      0.75
+Sub-level 2       103      0.75      0.73
+Basement          124      0.61      0.67
+Semi-Basement     106      0.54      0.62
+
+--- building_type ---
+                      ilan  ham_etki  ilce_ici
+building_type                                 
+(eksik)              14146      0.99      1.02
+Masonry                 73      1.34      1.01
+Reinforced Concrete   9833      1.01      0.98
+
+--- exchange ---
+           ilan  ham_etki  ilce_ici
+exchange                           
+No        18710      1.06      1.01
+(eksik)    1550      1.16      1.01
+Yes        3859      0.74      0.94
+
+--- supheli_m2 ---
+             ilan  ham_etki  ilce_ici
+supheli_m2                           
+0           23258      1.01      1.01
+1             861      0.72      0.82
+
+--- durum_celiskisi ---
+                  ilan  ham_etki  ilce_ici
+durum_celiskisi                           
+0                23868       1.0      1.00
+1                  251       0.9      0.95
+
+
+===========================================================================
+2.6 DOĞRUSAL OLMAYAN ETKİLER (ilçe içi göreli m² fiyatı)
+===========================================================================
+--- building_age ---
+              size  median
+building_age              
+(-1, 0]       6626    1.17
+(0, 5]        3793    1.10
+(5, 10]       4030    1.00
+(10, 20]      3764    0.94
+(20, 27]      2316    0.69
+(27, 35]      2528    0.72
+(35, 50]       953    0.85
+(50, 200]      105    1.15
+
+--- floor ---
+           size  median
+floor                  
+(-10, -1]  2471    0.81
+(-1, 0]    2879    0.89
+(0, 1]     3235    1.06
+(1, 3]     6443    1.02
+(3, 5]     4798    0.97
+(5, 10]    2306    1.18
+(10, 20]    739    1.29
+
+--- total_floors ---
+              size  median
+total_floors              
+(0, 2]         384    0.97
+(2, 4]        8721    0.95
+(4, 6]        8812    0.93
+(6, 10]       3157    1.13
+(10, 15]      1832    1.29
+(15, 25]       721    1.48
+(25, 100]      488    1.26
+
+--- net_sqm ---
+             size  median
+net_sqm                  
+(0, 50]      1006    1.28
+(50, 75]     5224    1.03
+(75, 100]    7911    0.99
+(100, 125]   4050    0.98
+(125, 150]   2675    0.95
+(150, 200]   2233    0.94
+(200, 300]    882    0.96
+(300, 1000]   138    1.31
+
+--- kat_orani (kat / toplam kat) ---
+              size  median
+kat_orani                 
+(-1.0, 0.0]   5326    0.86
+(0.0, 0.25]   3435    1.10
+(0.25, 0.5]   4187    1.09
+(0.5, 0.75]   3600    1.08
+(0.75, 0.99]  1952    1.08
+(0.99, 1.0]   4345    0.91
+
+===========================================================================
+2.7 CEPHE
+===========================================================================
+North :  21.1% ilanda  | var: 0.99  yok: 1.00
+South :  63.5% ilanda  | var: 1.00  yok: 1.03
+East  :  42.9% ilanda  | var: 1.00  yok: 1.00
+West  :  33.6% ilanda  | var: 1.01  yok: 1.00
+
+Cephe sayısına göre:
+             size  median
+orientation              
+1            6262    0.99
+2            7321    1.01
+3            3349    1.02
+4            1980    0.96
+
+===========================================================================
+2.8 EKSİKLİK BİLGİ TAŞIYOR MU?
+===========================================================================
+Bir alanın boş bırakılması tesadüf mü, yoksa belli tür evlerde mi oluyor?
+
+floor                eksik %  5.2 | eksik olanlar: 1.03  dolu olanlar: 1.00
+floor_category       eksik % 70.1 | eksik olanlar: 1.05  dolu olanlar: 0.89  <-- dikkat
+building_type        eksik % 58.7 | eksik olanlar: 1.02  dolu olanlar: 0.98
+building_condition   eksik % 55.7 | eksik olanlar: 1.01  dolu olanlar: 0.99
+fuel_type            eksik % 55.7 | eksik olanlar: 1.02  dolu olanlar: 0.98
+furnished            eksik %  4.3 | eksik olanlar: 1.00  dolu olanlar: 1.00
+usage_status         eksik %  2.9 | eksik olanlar: 0.97  dolu olanlar: 1.00
+orientation          eksik % 21.6 | eksik olanlar: 1.00  dolu olanlar: 1.00
+maintenance_fee      eksik % 63.4 | eksik olanlar: 1.03  dolu olanlar: 0.96
+exchange             eksik %  6.4 | eksik olanlar: 1.01  dolu olanlar: 1.00
+last_updated         eksik % 47.9 | eksik olanlar: 1.00  dolu olanlar: 1.00
+kat_orani            eksik %  5.2 | eksik olanlar: 1.03  dolu olanlar: 1.00

@@ -1,0 +1,56 @@
+24,119 ilan, 37 özellik (25 sayısal, 12 kategorik)
+
+===========================================================================
+4.1 EĞİTİM / DOĞRULAMA / TEST AYRIMI (ofise göre)
+===========================================================================
+Aynı ofisin tüm ilanları aynı tarafa düşer. Böylece model test setinde,
+eğitimde gördüğü bir ilanın kopyasını ya da aynı binadaki ikizini 'tahmin' edemez.
+
+Eğitim     16,776 ilan  1,628 ofis  medyan fiyat  6.75 M TL
+Doğrulama   2,815 ilan    288 ofis  medyan fiyat  6.50 M TL
+Test        4,528 ilan    479 ofis  medyan fiyat  7.00 M TL
+
+Eğitim ve testte ortak ofis sayısı: 0 (0 olmalı)
+
+===========================================================================
+4.2 TABAN MODEL: mahalle medyan m² fiyatı x net m²
+===========================================================================
+Her tahmin modelin geçmesi gereken çıta. Bir emlakçının kafadan yapacağı hesap budur.
+
+===========================================================================
+4.3 XGBOOST EĞİTİMİ
+===========================================================================
+Early stopping: 487 ağaçta durdu (izin verilen: 5000)
+
+Ağaç sayısına göre hata (log fiyat MAE; ~0.10 = yaklaşık %10 hata):
+  Ağaç    Eğitim  Doğrulama
+     1    0.5621     0.5696
+    10    0.4071     0.4266
+    50    0.1765     0.2265
+   100    0.1338     0.2000
+   250    0.1045     0.1908
+   500    0.0817     0.1890
+   487    0.0826     0.1888  <- en iyi
+
+===========================================================================
+4.4 TEST SONUÇLARI (model bu ilanları hiç görmedi)
+===========================================================================
+             Medyan hata %  Ort. hata %  %10 içinde  %20 içinde  MAE (M TL)  R² (log)
+Taban model         23.376       34.178      23.012      43.573       4.056     0.715
+XGBoost             13.288       18.595      40.150      66.254       2.639     0.896
+
+Nasıl okunur:
+  Medyan hata %  : ilanların yarısında tahmin bu yüzdeden daha yakın
+  %10 içinde     : tahmini gerçek fiyatın ±%10'u içinde kalan ilanların oranı
+  R² (log)       : log fiyattaki değişkenliğin açıklanan kısmı (1 = mükemmel)
+
+===========================================================================
+4.5 DENEY: RASTGELE AYIRMA OLSAYDI?
+===========================================================================
+Aynı modeli, ofisi dikkate almadan rastgele ayrılmış veriyle eğitiyoruz.
+                   Medyan hata %  Ort. hata %  %10 içinde  %20 içinde  MAE (M TL)  R² (log)
+Ofise göre ayırma         13.288       18.595      40.150      66.254       2.639     0.896
+Rastgele ayırma           12.263       17.074      42.682      70.419       2.135     0.910
+
+Rastgele ayırma daha iyi görünüyorsa, farkın bir kısmı 'ezber' kaynaklıdır:
+model test setinde, aynı ofisin eğitimde gördüğü benzer ilanlarından faydalanmıştır.

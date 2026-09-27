@@ -1,0 +1,99 @@
+Girdi: 24,119 ilan
+
+3.1 Büyüklük özellikleri
+  net_sqm, gross_sqm, rooms, halls, bathroom_count, net_brut_orani, oda_basina_m2
+
+3.2 Kat özellikleri
+  Kat türünden 187 ek kat değeri kurtarıldı ('Mid Floor' gibi belirsizler boş kaldı)
+  floor, total_floors, kat_orani, en_ust_kat, yer_alti, giris_kati
+
+3.3 Bina özellikleri
+  building_age, is_in_complex, maintenance_fee, aidat_m2
+  (Aidat %63 eksik: doldurmuyoruz. XGBoost eksik değerlerin hangi dala gideceğini kendisi öğrenir)
+
+3.4 Cephe (analizde etkisi zayıftı; modelin karar vermesine izin veriyoruz)
+  cephe_kuzey, cephe_guney, cephe_dogu, cephe_bati, cephe_sayisi
+
+3.5 İlan bilgileri
+  son_guncelleme_gun (ilan en son kaç gün önce güncellenmiş; %48 eksik)
+  supheli_m2, durum_celiskisi (temizlikte koyduğumuz işaretler)
+
+3.6 Kategorik alanlar
+  district              38 kategori  (1 nadir değer 'Diğer' oldu: Çatalca)
+  floor_category        17 kategori
+  building_condition     4 kategori
+  building_type          5 kategori  (4 nadir değer 'Diğer' oldu: Wooden, Brick, Stone, Log)
+  deed_status           10 kategori  (2 nadir değer 'Diğer' oldu: Foundation/Association, Bilinmiyor)
+  credit_eligible        3 kategori
+  usage_status           4 kategori
+  furnished              3 kategori
+  heating_type          12 kategori  (4 nadir değer 'Diğer' oldu: VRV, Heat Pump, Solar, Fireplace)
+  fuel_type              4 kategori  (2 nadir değer 'Diğer' oldu: Coal-Wood, Fuel Oil)
+  exchange               3 kategori
+  mahalle              575 kategori  (198 mahalle, toplam 823 ilan, '<İlçe> / Diğer' altında toplandı)
+
+3.7 Hedef ve gruplama anahtarları (bunlar ÖZELLİK DEĞİL)
+  log_fiyat (hedef), price (değerlendirme için), listing_id, ofis (eğitim/test ayrımı için)
+
+============================================================
+Toplam özellik: 37  (25 sayısal, 12 kategorik)
+Modele GİRMEYENLER: price_per_sqm (sızıntı), complex_name (is_in_complex yeterli),
+  orientation (cephe_* sütunlarına bölündü), tarihler (son_guncelleme_gun'e dönüştü), listing_id, ofis
+
+Eksik değer oranı (%) - sayısal özellikler:
+maintenance_fee       63.4
+aidat_m2              63.4
+son_guncelleme_gun    47.9
+cephe_kuzey           21.6
+cephe_guney           21.6
+cephe_dogu            21.6
+cephe_bati            21.6
+cephe_sayisi          21.6
+floor                  4.4
+kat_orani              4.4
+yer_alti               4.4
+giris_kati             4.4
+bathroom_count         1.0
+
+Örnek: ilk ilanın özellikleri
+net_sqm                              60.0
+gross_sqm                            65.0
+rooms                                 1.0
+halls                                   1
+bathroom_count                        1.0
+net_brut_orani                   0.923077
+oda_basina_m2                        30.0
+floor                                 0.0
+total_floors                          3.0
+kat_orani                             0.0
+en_ust_kat                              0
+yer_alti                              0.0
+giris_kati                            1.0
+building_age                         30.0
+is_in_complex                           0
+maintenance_fee                       NaN
+aidat_m2                              NaN
+cephe_kuzey                           1.0
+cephe_guney                           0.0
+cephe_dogu                            0.0
+cephe_bati                            0.0
+cephe_sayisi                          1.0
+son_guncelleme_gun                   19.0
+supheli_m2                              0
+durum_celiskisi                         0
+district                           Adalar
+floor_category             Entrance Floor
+building_condition            Second-hand
+building_type         Reinforced Concrete
+deed_status             Condominium Title
+credit_eligible                  Eligible
+usage_status                       Vacant
+furnished                       Furnished
+heating_type                        Stove
+fuel_type                     Electricity
+exchange                               No
+mahalle                Adalar / Burgazada
+log_fiyat                       15.761421
+price                             7000000
+listing_id                      42477-549
+ofis                                42477

@@ -1,0 +1,81 @@
+Eğitim 16,776 | Doğrulama 2,815 | Test 4,528 (4. adımla aynı)
+
+===========================================================================
+6.1 PARAMETRE AYARI (sadece doğrulama setiyle)
+===========================================================================
+Her ayar eğitimde öğrenir, doğrulamada ölçülür. 'makas' = doğrulama hatası - eğitim hatası
+(log MAE). Makas büyükse model eğitim verisini ezberliyor demektir.
+
+  A: 4. adımdaki model         doğrulama medyan hata %13.73  (2 sn)
+  B: daha sığ ağaçlar          doğrulama medyan hata %13.91  (3 sn)
+  C: daha derin ağaçlar        doğrulama medyan hata %13.44  (2 sn)
+  D: yaprakta daha çok ev      doğrulama medyan hata %13.29  (1 sn)
+  E: güçlü λ                   doğrulama medyan hata %13.58  (3 sn)
+  F: daha az özellik/ağaç      doğrulama medyan hata %13.57  (2 sn)
+  G: D + E + F birlikte        doğrulama medyan hata %13.12  (3 sn)
+  H: mutlak hata kaybı         doğrulama medyan hata %13.43  (4 sn)
+  I: G + mutlak hata kaybı     doğrulama medyan hata %13.21  (5 sn)
+
+                          ağaç  eğitim_mae  doğrulama_mae  makas  Medyan hata %  %10 içinde  %20 içinde  MAE (M TL)
+ayar                                                                                                               
+A: 4. adımdaki model       487       0.083          0.189  0.106         13.735      37.904      65.577       2.459
+B: daha sığ ağaçlar       1535       0.095          0.188  0.093         13.906      38.757      65.222       2.473
+C: daha derin ağaçlar      401       0.049          0.193  0.144         13.437      38.792      65.542       2.556
+D: yaprakta daha çok ev    402       0.094          0.189  0.095         13.286      38.899      65.187       2.481
+E: güçlü λ                 762       0.073          0.189  0.117         13.576      39.254      65.435       2.498
+F: daha az özellik/ağaç    588       0.086          0.185  0.099         13.570      38.828      66.146       2.440
+G: D + E + F birlikte      859       0.083          0.183  0.100         13.118      39.929      66.998       2.392
+H: mutlak hata kaybı      1164       0.069          0.189  0.120         13.430      38.508      65.719       2.501
+I: G + mutlak hata kaybı  1880       0.078          0.185  0.107         13.208      39.858      67.034       2.435
+
+Doğrulamada en iyi: G: D + E + F birlikte
+
+===========================================================================
+6.2 ŞÜPHELİ İLANLARI EĞİTİMDEN ÇIKARMAK
+===========================================================================
+Eğitim setindeki her ilan için 'dışarıda bırakılmış' tahmin üretiyoruz (5 katlı, ofise göre):
+her ilan, kendisini ve ofisini GÖRMEMİŞ bir modelle tahmin edilir. Fiyatı tahminin YARISINDAN
+düşük olan ilanlar şüphelidir (peşinat fiyatı, yazım hatası vb.) ve eğitimden çıkarılır.
+TEK YÖNLÜ: tahminden çok PAHALI görünen ilanlar çıkarılmaz. Onlar çoğunlukla modelin bilmediği
+bir değeri (Boğaz manzarası, yalı, tarihi bina) taşıyan gerçek lüks mülklerdir.
+Doğrulama ve test setlerine DOKUNULMAZ: model gerçek hayatta bu tür ilanlarla da karşılaşacak.
+
+  kat 1/5 tamam
+  kat 2/5 tamam
+  kat 3/5 tamam
+  kat 4/5 tamam
+  kat 5/5 tamam
+Karşılaştırma için: tahminin 2 katından PAHALI olan (çıkarılmayan) ilan: 192
+
+Şüpheli bulunan eğitim ilanı: 124 (%0.7)
+
+Örnekler (kat: tahmin, ilan fiyatının kaç katı):
+listing_id                 mahalle  net_sqm  building_age  price  tahmin_M  kat
+0-46267847          Beykoz / Diğer    450.0          35.0  22.50    129.40 5.75
+151807-111 Beylikdüzü / Büyükşehir     80.0           4.0   1.05      4.90 4.67
+144105-226         Beyoğlu / Diğer    160.0           0.0   9.70     33.63 3.47
+113746-502      Beşiktaş / Ortaköy    220.0          21.0  13.70     47.16 3.44
+151807-108    Beylikdüzü / Kavaklı    130.0           9.0   1.82      6.15 3.39
+ 151807-99 Beylikdüzü / Büyükşehir     80.0           6.0   1.35      4.56 3.38
+74348-5443         Şişli / Harbiye    135.0          35.0  11.25     35.92 3.19
+151807-103 Beylikdüzü / Büyükşehir    125.0           3.0   2.05      6.49 3.17
+78519-8852         Sarıyer / Diğer     90.0          30.0   1.85      5.75 3.11
+125785-631      Esenyurt / Mevlana    120.0           1.0   1.50      4.65 3.10
+
+Doğrulama sonuçları (en iyi ayarla):
+                       Medyan hata %  %10 içinde  %20 içinde  MAE (M TL)
+Tüm eğitim verisi             13.118      39.929      66.998       2.392
+Şüpheliler çıkarılmış         13.618      39.467      65.933       2.439
+Karar: tüm eğitim verisi kullanılacak
+
+===========================================================================
+6.3 FİNAL MODEL: TEST SETİ (ilk ve tek bakış)
+===========================================================================
+                Medyan hata %  %10 içinde  %20 içinde  MAE (M TL)
+4. adım modeli         13.288      40.150      66.254       2.639
+Final (G)              13.132      39.841      67.248       2.560
+
+Ortalamaya çekilme (medyan sapma yönü, %):
+price    en ucuz %20  20-40  40-60  60-80  en pahalı %20
+4. adım          9.9    3.3   -0.7   -4.4           -8.1
+Final            9.2    3.5    1.1   -4.1           -8.1

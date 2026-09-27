@@ -1,0 +1,15 @@
+{
+  "ayar": "G: D + E + F birlikte",
+  "parametreler": {
+    "n_estimators": 859,
+    "learning_rate": 0.05,
+    "max_depth": 6,
+    "min_child_weight": 15,
+    "subsample": 0.8,
+    "colsample_bytree": 0.5,
+    "reg_lambda": 10.0,
+    "gamma": 0.0,
+    "objective": "reg:squarederror"
+  },
+  "supheliler_cikarildi": false
+}
