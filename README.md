@@ -4,9 +4,14 @@
 
 Veri, Mart 2026'da Hepsiemlak'tan toplanmış 24.767 ilandan oluşur. Temizlikten sonra 38 ilçe, 740 mahalle ve 2.395 emlak ofisinden 24.119 ilan kaldı. Model 37 özellik kullanır ve her tahminini özellik özellik açıklayabilir.
 
+![Web arayüzü: ev bilgileri, tahmin, bağlam ve "Neden bu fiyat?" grafiği](docs/img/app_ust.png)
+
+<sub>Web arayüzü (`streamlit run app.py`). Tüm sayfa: [`docs/img/app_tam_sayfa.png`](docs/img/app_tam_sayfa.png)</sub>
+
 ## İçindekiler
 
 - [Hızlı başlangıç](#hızlı-başlangıç)
+- [Demo](#demo)
 - [Proje yapısı](#proje-yapısı)
 - [Adımlar ve sonuçlar](#adımlar-ve-sonuçlar)
 - [XGBoost nasıl çalışır?](#xgboost-nasıl-çalışır)
@@ -47,6 +52,51 @@ Web arayüzünü açmak için (model ve veri depoda hazır, eğitim gerekmez):
 
 ---
 
+## Demo
+
+### Web arayüzü (`app.py`)
+
+Solda evin özellikleri seçilir; sağda tahmin, tipik aralık ve mahalle/ilçe medyanına göre konum görünür.
+
+**Neden bu fiyat?** SHAP şelale grafiği tahmini özellik özellik açıklar: İstanbul ortalamasından (7,42 M TL) başlar, en etkili 10 özelliğin fiyatı yüzde kaç ittiğini gösterir ve tahminle biter.
+
+![SHAP şelale grafiği](docs/img/app_selale.png)
+
+**Ya şöyle olsaydı?** Diğer her şey sabitken yalnızca bina yaşı (ya da kat) değişirse tahmin nasıl değişir? Kırmızı nokta mevcut ev. 20 yaş civarındaki uçurum, analizde görülen 1999 depremi kırılmasıdır.
+
+![Bina yaşı senaryosu](docs/img/app_senaryo.png)
+
+**Karşılaştırma:** "Karşılaştırmaya ekle" ile en fazla 5 ev yan yana konur. Aynı ev, yalnızca bina yaşı 25'ten 5'e inince:
+
+![Karşılaştırma tablosu](docs/img/app_karsilastirma.png)
+
+### Model izleme (`izle.py`)
+
+```bash
+./venv/bin/streamlit run izle.py
+```
+
+Modeli kara kutu olmaktan çıkarır: örnek bir evin seçilen ağaçlarda hangi sorulardan geçip hangi yaprağa vardığını satır satır gösterir, sonra `base_score` + 859 yaprağın toplamını elle hesaplayıp `model.predict` ile karşılaştırır. Son bölüm, bu elle yürüyüşün 859 ağacın hepsinde XGBoost'un kendi `pred_leaf` sonucuyla aynı yaprağa vardığını doğrular.
+
+![Model izleme ekranı](docs/img/izle.png)
+
+Okurken dikkat:
+- **Kategorik bölmeler** "mahalle {…} (512 değer) içinde mi?" biçimindedir; kümedeki değerler sağ dala gider.
+- **Eksik değerler** (ör. brüt m² girilmediyse) her bölmede eğitimde öğrenilmiş varsayılan yöne gider.
+- **Yaprak değerleri** log ölçeğindedir ve öğrenme oranıyla çarpılmış haldedir; ilk ağaçlar ~0,05, son ağaçlar ~0,001 katkı verir.
+- 124 TL'lik fark, elle toplamanın float64, XGBoost'un float32 kullanmasından gelir.
+
+### Ekran görüntülerini yenilemek
+
+```bash
+./venv/bin/python -m pip install playwright && ./venv/bin/python -m playwright install chromium   # bir kez
+./venv/bin/python scripts/ekran_goruntuleri.py
+```
+
+Script iki uygulamayı arka planda başlatır, Playwright ile açar (karşılaştırma tablosunu doldurmak için iki ev ekler) ve görüntüleri `docs/img/` klasörüne yazar.
+
+---
+
 ## Proje yapısı
 
 ```
@@ -55,6 +105,9 @@ evtahmin/
 ├── api.py                   # FastAPI tahmin servisi (POST /tahmin)
 ├── izle.py                  # Model izleme: bir ev ağaçlardan nasıl geçiyor?
 ├── requirements.txt
+├── scripts/
+│   └── ekran_goruntuleri.py # README ekran görüntülerini Playwright ile üretir
+├── docs/img/                # README ekran görüntüleri
 ├── src/                     # Tüm pipeline kodu
 │   ├── yollar.py            # Klasör/dosya yolları TEK yerde
 │   ├── clear_data.py        # Adım 1: veri temizliği
@@ -125,7 +178,7 @@ $$\hat{y} = \text{başlangıç} + \eta \cdot f_1(x) + \eta \cdot f_2(x) + \dots 
 
 η (öğrenme oranı) her ağacın katkısını küçültür; model temkinli ve adım adım öğrenir. Random Forest ağaçları birbirinden bağımsız kurup oylama yapar; boosting ise her ağacı bir öncekinin hatasına göre kurar.
 
-> Bunu gerçek modelde görmek için: `./venv/bin/streamlit run izle.py`. Örnek bir evin 859 ağacın her birinde hangi yoldan geçtiğini ve `base_score` + yaprakların toplamının `model.predict` ile aynı olduğunu gösterir.
+> Bunu gerçek modelde görmek için: `./venv/bin/streamlit run izle.py` ([ekran görüntüsü](#model-izleme-izlepy)). Örnek bir evin 859 ağacın her birinde hangi yoldan geçtiğini ve `base_score` + yaprakların toplamının `model.predict` ile aynı olduğunu gösterir.
 
 ### Dört evlik örnek
 
@@ -580,6 +633,8 @@ Yalnızca bina yaşı değiştiğinde model 12,6 M TL fark söyler. Bu tür "ya 
 - **Neden bu fiyat?:** SHAP şelale grafiği: İstanbul ortalamasından başlayıp en etkili 10 özellikle tahmine ulaşır.
 - **Ya şöyle olsaydı?:** Bina yaşı (0–60) ve kat değişirse fiyat eğrisi.
 - **Benzer ilanlar** ve en fazla 5 evlik **karşılaştırma** tablosu.
+
+Ekran görüntüleri: [Demo](#demo) bölümü.
 
 ### API (`api.py`) ve model izleme (`izle.py`)
 
